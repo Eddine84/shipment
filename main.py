@@ -1,9 +1,11 @@
 
 from fastapi import FastAPI,HTTPException,status
 from typing import Any
-from .schemas import ShipementRead,ShipmentStatus,ShipementCreate,ShipementUpdate
+from .schemas import ShipementRead,ShipementCreate,ShipementUpdate
 
 app = FastAPI()
+
+
 
 #recuperer le dernier shipement de list
 @app.get('/shipment/latest')
@@ -33,10 +35,10 @@ async def get_shipment(id:int):
 async def submit_shipment( shipment:ShipementCreate)->dict[str,int]:
 
     id:int = max(shipments.keys())+1
+    
     new_shipment:dict[str,Any]= {
         "id":id,
-        "weight":shipment.weight,
-        "content":shipment.content,
+       **shipment.model_dump(),
         "status":"placed"
 
     }
@@ -69,14 +71,14 @@ async def get_shipment_field(id:int,field:str)->Any:
 
 
 @app.patch('/shipment/{id}', response_model=ShipementRead)
-async def patch_shipment(id:int,shipment:ShipementUpdate):
+async def update_shipment(id:int,shipment:ShipementUpdate):
     if id not in shipments:
         raise HTTPException(
             detail="Given key doesn't exist!!",
             status_code=status.HTTP_404_NOT_FOUND
         )
     
-    shipments[id].update(shipment)
+    shipments[id].update(shipment.model_dump(exclude_none=True))
     return shipments[id]
 
 #effacer un shipment
@@ -129,5 +131,7 @@ shipments = {
         "status": "placed", "destination":10241333
     },
 }
+
+
 
 

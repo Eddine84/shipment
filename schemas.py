@@ -23,9 +23,19 @@ class ShipementRead(ShipementBase,BaseModel):
     status:ShipmentStatus =Field(description="statut du signalement")
 
 
+# class Order(BaseModel):
+#     price:int
+#     title:str
+#     description:str
+
+
 class ShipementCreate(ShipementBase,BaseModel):
     pass
 
 
+
 class ShipementUpdate(BaseModel):
-      status:ShipmentStatus =Field(description="statut du signalement")
+        status:ShipmentStatus =Field(description="statut du signalement")
+        weight:float | None = Field(default=None, description="Maximum weight limit")
+        content:str | None = Field(default=None, description="shipment content")
+        destination:int | None  = Field(default=None,  description="shipment destination details")
