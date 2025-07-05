@@ -13,6 +13,7 @@ class ShipmentStatus(str,Enum):
 
 
 class ShipementBase(BaseModel):
+    
     weight:float = Field(le=25, gt=0 , description="Maximum weight limit")
     content:str = Field(max_length=40,min_length=5 ,description="shipment content")
     destination:int  = Field( description="shipment destination details")
@@ -20,6 +21,7 @@ class ShipementBase(BaseModel):
 
 
 class ShipementRead(ShipementBase,BaseModel):
+    id:int
     status:ShipmentStatus =Field(description="statut du signalement")
 
 

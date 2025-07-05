@@ -1,0 +1,58 @@
+[
+  {
+    "id": 12701,
+    "weight": 0.6,
+    "content": "glassware",
+    "status": "placed",
+    "destination": 1
+  },
+  {
+    "id": 12702,
+    "weight": 2.3,
+    "content": "books",
+    "status": "shipped",
+    "destination": 2
+  },
+  {
+    "id": 12703,
+    "weight": 1.1,
+    "content": "electronics",
+    "status": "delivered",
+    "destination": 1123123
+  },
+  {
+    "id": 12704,
+    "weight": 3.5,
+    "content": "furniture",
+    "status": "in transit",
+    "destination": 213123
+  },
+  {
+    "id": 12705,
+    "weight": 0.9,
+    "content": "clothing",
+    "status": "returned",
+    "destination": 110312
+  },
+  {
+    "id": 12706,
+    "weight": 4.0,
+    "content": "appliances",
+    "status": "processing",
+    "destination": 1412313
+  },
+  {
+    "id": 12707,
+    "weight": 1.8,
+    "content": "toys",
+    "status": "placed",
+    "destination": 10241333
+  },
+  {
+    "id": 12708,
+    "weight": 14.0,
+    "content": "orange algerie ",
+    "destination": 33,
+    "status": "placed"
+  }
+]
