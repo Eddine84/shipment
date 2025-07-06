@@ -11,8 +11,10 @@ db = DataBase()
 
 #recuperer le dernier shipement de list
 @app.get('/shipment/latest',response_model=ShipementRead)
-async def get_latest_shipment()->ShipementRead:
-    last_shipment:ShipementRead=  db.get_latest() 
+async def get_latest_shipment()->dict[str,Any]:
+    last_shipment=  db.get_latest() 
+    if last_shipment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="not shipment found")
     return last_shipment
 
 
@@ -21,7 +23,7 @@ async def get_latest_shipment()->ShipementRead:
 
 # recuperer le shipement selon id 
 @app.get('/shipment/{id}',response_model=ShipementRead)
-async def get_shipment(id:int):
+async def get_shipment(id:int)->dict[str,Any]:
     shipment =  db.get(id)
     if shipment is None:
        raise HTTPException(
@@ -42,8 +44,8 @@ async def submit_shipment( shipment:ShipementCreate)->dict[str,int]:
 
 
 #recupéré la valeur d'une clés shipment
-@app.get('/shipment/field/{field}')
-async def get_shipment_field(id:int,field:str)->Any:
+@app.get('/shipment/field/{field}', response_model=ShipementRead)
+async def get_shipment_field(id:int,field:str)->dict[str,Any]:
     shipment = db.get(id)
     if shipment is None:
         raise HTTPException(
@@ -57,17 +59,13 @@ async def get_shipment_field(id:int,field:str)->Any:
             status_code=status.HTTP_404_NOT_FOUND
         )
     return shipment[field]
-# je decompose en deux get id -> retounr une shipment
-# je get field je crer une methode dans la class 
 
-
-#metre ajour un shipment et ajouter Enum pour verifier valeur de field
 
 
 
 
 @app.patch('/shipment/{id}', response_model=ShipementRead )
-async def update_shipment(id:int,shipment:ShipementUpdate) ->dict[str,Any]| None:
+async def update_shipment(id:int,shipment:ShipementUpdate) ->dict[str,Any]:
     updated_shipment = db.update(id,shipment)
     if updated_shipment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="given id dot not exists")
@@ -78,5 +76,8 @@ async def update_shipment(id:int,shipment:ShipementUpdate) ->dict[str,Any]| None
 #effacer un shipment
 @app.delete('/shipment/{id}')
 async def delete_shipment(id:int)->dict[str,Any]:
+    shipment = db.get(id)
+    if shipment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="shipment do not exsite the the given id")
     db.delete(id)
     return {"id":id,"msg":"deleted success"}

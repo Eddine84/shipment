@@ -72,18 +72,18 @@ class DataBase:
     
 
 
-    def get_latest(self)->ShipementRead:
+    def get_latest(self)->dict[Any,str] | None:
         self.cur.execute("""
         SELECT * FROM shipment ORDER BY id DESC LIMIT 1
         """)
-        result = self.cur.fetchone()
-        return ShipementRead(
-            id=result[0],
-            content=result[1],
-            weight=result[2],
-            status=result[3],
-            destination=result[4]
-        )
+        row = self.cur.fetchone()
+        return {
+            "id":row[0],
+            "content":row[1],
+            "weight":row[2],
+            "status":row[3],
+            "destination":row[4]
+        }if row is not None else None
     
     def close(self):
         self.conn.close()
@@ -92,8 +92,7 @@ class DataBase:
 
 
 
-db = DataBase()
-db.get(12703)
+
 
 
 # creer la ressrouce vers fichier creer sqlite.db

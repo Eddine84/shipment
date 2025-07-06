@@ -25,10 +25,6 @@ class ShipementRead(ShipementBase,BaseModel):
     status:ShipmentStatus =Field(description="statut du signalement")
 
 
-# class Order(BaseModel):
-#     price:int
-#     title:str
-#     description:str
 
 
 class ShipementCreate(ShipementBase,BaseModel):
