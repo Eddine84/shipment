@@ -1,13 +1,16 @@
 
 
-from fastapi import FastAPI,HTTPException,status
-from app.schemas import ShipementRead,ShipementCreate,ShipementUpdate, ShipmentStatus
-from app.database.session import create_db_tables,SessionDep
-from app.database.models import Shipment
 from contextlib import asynccontextmanager
-from rich import print, panel
 from datetime import datetime, timedelta
+from sqlmodel import select
 
+
+from fastapi import FastAPI, HTTPException, status
+from rich import panel, print
+
+from app.database.models import Shipment
+from app.database.session import SessionDep, create_db_tables
+from app.schemas import ShipementCreate, ShipementRead, ShipementUpdate, ShipmentStatus
 
 
 @asynccontextmanager
@@ -24,15 +27,13 @@ app = FastAPI(lifespan=life_span_handler)
 
 
 # #recuperer le dernier shipement de list
-# @app.get('/shipment/latest',response_model=ShipementRead)
-# async def get_latest_shipment(session:SessionDep):
-#     stmt = select(Shipment).order_by(Shipment.id.desc()).limit(1) # type: ignore
-#     result = await session.exec(stmt)
-#     shipment = result.scalars().first()
-#     #last_shipment=  db.get_latest() 
-#     if shipment is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="not shipment found")
-#     return shipment
+@app.get('/shipment/latest',response_model=ShipementRead)
+async def get_latest_shipment(session:SessionDep):
+    stmt = select(Shipment).order_by(Shipment.id.desc()) # type: ignore
+    result =  session.exec(stmt).first()
+    if result is None:
+         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="not shipment found")
+    return result
 
 
 
@@ -67,22 +68,21 @@ async def submit_shipment( shipment:ShipementCreate, session:SessionDep)->dict[s
 
 
 # #recupéré la valeur d'une clés shipment
-# @app.get('/shipment/field/{field}', response_model=ShipementRead)
-# async def get_shipment_field(id:int,field:str ,session:SessionDep)->dict[str,Any]:
+@app.get('/shipment/field/{field}', response_model=dict)
+async def get_shipment_field(id: int, field: str, session: SessionDep) -> dict[str, any]:
+    stmt = select(Shipment).where(Shipment.id == id)
+    shipment = session.exec(stmt).first()
 
-#     shipment = db.get(id)
-#     if shipment is None:
-#         raise HTTPException(
-#             detail="Given id doesn't exist!!",
-#             status_code=status.HTTP_404_NOT_FOUND
-#         )
-    
-#     if field not in shipment:
-#         raise HTTPException(
-#             detail="Given key doesn't exist!!",
-#             status_code=status.HTTP_404_NOT_FOUND
-#         )
-#     return shipment[field]
+    if shipment is None:
+        raise HTTPException(404, "Shipment not found")
+
+
+    if not hasattr(shipment, field):
+        raise HTTPException(404, "Field not in Shipment")
+
+    return {field: getattr(shipment, field)}
+
+
 
 
 #front envoyer shipment update mais il ya quelqu valeur None, donc leve pas l'erruer
@@ -111,10 +111,16 @@ async def update_shipment(id:int,shipment_update:ShipementUpdate , session:Sessi
 
 
 # #effacer un shipment
-# @app.delete('/shipment/{id}')
-# async def delete_shipment(id:int)->dict[str,Any]:
-#     shipment = db.get(id)
-#     if shipment is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="shipment do not exsite the the given id")
-#     db.delete(id)
-#     return {"id":id,"msg":"deleted success"}
+@app.delete('/shipment/{id}')
+async def delete_shipment(id:int ,session:SessionDep)->dict[str,str]:
+    shipment =  session.get(Shipment,id)
+ 
+    if shipment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="shipment do not exsite the the given id")
+
+    session.delete(shipment)
+    session.commit()
+    return {"id":"deleted success"}
+
+
+
