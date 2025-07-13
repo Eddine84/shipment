@@ -18,6 +18,6 @@ class Shipment(SQLModel, table=True):
     id:int  = Field( default=None,primary_key=True)
     content:str 
     weight:float =Field(le=25, gt=0 , description="Maximum weight limit")
-    destination:str
+    destination:int
     status:ShipmentStatus
     estimated_delivery:datetime
