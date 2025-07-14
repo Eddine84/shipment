@@ -1,14 +1,15 @@
-from datetime import datetime, timedelta
+
 from typing import Any
 from fastapi import APIRouter, HTTPException,status
 
 
 
+from app.api.dependencies import ServiceDep, SessionDep
 from app.database.models import Shipment
-from app.database.session import SessionDep
+
 from app.api.schemas.shipment import ShipementRead,ShipementCreate,ShipementUpdate
 
-from sqlmodel import select
+
 
 from app.service.shipment import ShipmentService
 
@@ -18,15 +19,15 @@ router = APIRouter()
 
 # # #recuperer le dernier shipement de list
 @router.get('/shipment/latest',response_model=ShipementRead)
-async def get_latest_shipment(session:SessionDep):
-    return await ShipmentService(session).get_latest()
+async def get_latest_shipment( session:ServiceDep ):
+    return await session.get_latest()
     
 
 
 # # recuperer le shipement selon id  ?
 @router.get('/shipment/{id}',response_model=ShipementRead)
-async def get_shipment(id:int , session:SessionDep):
-        shipment =  await ShipmentService(session).get(id)
+async def get_shipment(id:int ,  session:ServiceDep):
+        shipment =  await session.get(id)
         if shipment is None:
             raise HTTPException(
                 detail="Given id doesn't exist!",
@@ -38,18 +39,15 @@ async def get_shipment(id:int , session:SessionDep):
 
 # # #ajouter un nouveau shipment attention status est founi par defaut donc j ajoute pas a mon Shipment schema
 @router.post('/shipment',response_model=ShipementRead)
-async def submit_shipment( shipment:ShipementCreate, session:SessionDep)->Shipment:
-    return await ShipmentService(session).add(shipment)
+async def submit_shipment( shipment:ShipementCreate, session:ServiceDep)->Shipment:
+    return await session.add(shipment)
 
 
 
 # # #recupéré la valeur d'une clés shipment
 @router.get('/shipment/field/{field}', response_model=dict)
-async def get_shipment_field(id: int, field: str, session: SessionDep) -> dict[str, Any]:
-   return   await  ShipmentService(session).get_field(id,field)
-
-
-
+async def get_shipment_field(id: int, field: str, session: ServiceDep) -> dict[str, Any]:
+   return   await  session.get_field(id,field)
 
 
 
@@ -57,18 +55,18 @@ async def get_shipment_field(id: int, field: str, session: SessionDep) -> dict[s
 
 
 @router.patch('/shipment/{id}', response_model=ShipementRead )
-async def update_shipment(id:int,shipment_update:ShipementUpdate , session:SessionDep) ->Shipment:
+async def update_shipment(id:int,shipment_update:ShipementUpdate , session:ServiceDep) ->Shipment:
         update_data = shipment_update.model_dump(exclude_none=True)
         if update_data is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="no data provided to update")
         
-        return await ShipmentService(session).update(id,update_data)
+        return await session.update(id,update_data)
 
 
 
 
 # # #effacer un shipment
 @router.delete('/shipment/{id}')
-async def delete_shipment(id:int ,session:SessionDep)->dict[str,Any]:
-    shipment_id = await ShipmentService(session).delete(id)
+async def delete_shipment(id:int ,session:ServiceDep)->dict[str,Any]:
+    shipment_id = await session.delete(id)
     return {"id":shipment_id, "msg":"deleted"}

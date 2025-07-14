@@ -51,4 +51,4 @@ async def get_session():
     #    - Et ferme la connexion réelle à la base de données via l'engine
 
 
-SessionDep = Annotated[AsyncSession,Depends(get_session)]
+# SessionDep = Annotated[AsyncSession,Depends(get_session)]
