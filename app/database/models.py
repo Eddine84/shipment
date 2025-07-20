@@ -1,10 +1,10 @@
 from datetime import datetime
-from sqlmodel import SQLModel,Field
+from pydantic import EmailStr
+from sqlmodel import SQLModel, Field
 from enum import Enum
 
 
-
-class ShipmentStatus(str,Enum):
+class ShipmentStatus(str, Enum):
     placed = "placed"
     in_transit = "in_transit"
     out_for_delivery = "out_for_delivery"
@@ -14,10 +14,18 @@ class ShipmentStatus(str,Enum):
 class Shipment(SQLModel, table=True):
     __tablename__ = "shipment"
 
-#id pas fourni dans la requuete sql table va le creer et incrementer
-    id:int  = Field( default=None,primary_key=True)
-    content:str 
-    weight:float =Field(le=25, gt=0 , description="Maximum weight limit")
-    destination:int
-    status:ShipmentStatus
-    estimated_delivery:datetime
+    # id pas fourni dans la requuete sql table va le creer et incrementer
+    id: int = Field(default=None, primary_key=True)
+    content: str
+    weight: float = Field(le=25, gt=0, description="Maximum weight limit")
+    destination: int
+    status: ShipmentStatus
+    estimated_delivery: datetime
+
+
+class Seller(SQLModel, table=True):
+    __tablename__ = "seller"
+    id: int = Field(default=None, primary_key=True)
+    name: str
+    email: EmailStr
+    password_hash: str
